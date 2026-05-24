@@ -20,11 +20,11 @@ st.set_page_config(
 def load_assets():
     gdown.download(
         "https://drive.google.com/uc?id=13cmNSGFtrc2-X7xGIPIS-4CR4T0cUeue",
-        "results.csv", quiet=False, fuzzy=True
+        "results.csv", quiet=False
     )
     gdown.download(
         "https://drive.google.com/uc?id=1O6ICDzxiq1B3dOnyxiHHuLBMepkzgRZz",
-        "X_test.csv", quiet=False, fuzzy=True
+        "X_test.csv", quiet=False
     )
     with open("model.pkl", "rb") as f:
         model = pickle.load(f)
