@@ -164,9 +164,7 @@ with st.expander("👉 Don't know a TransactionID? Click here for samples"):
     )
 
 
-# ════════════════════════════════════════════════════════════
-# PAGE 3 — SHAP EXPLAINER
-# ════════════════════════════════════════════════════════════
+# ── PAGE 3 — SHAP EXPLAINER ──────────────────────────────────
 elif page == "SHAP Explainer":
     st.title("🧠 SHAP Transaction Explainer")
     st.markdown("---")
