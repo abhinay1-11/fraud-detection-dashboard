@@ -118,7 +118,29 @@ elif page == "Transaction Explorer":
 
     # search by transaction ID
     search_id = st.text_input("Search by TransactionID", placeholder="e.g. 2987004")
+    # show sample transaction IDs so visitors know what to search
+    with st.expander("👉 Don't know a TransactionID? Click here for samples"):
+        col1, col2, col3 = st.columns(3)
 
+    with col1:
+        st.markdown("🔴 **Critical Risk**")
+        critical_ids = results[results["risk_tier"] == "Critical Risk"]["TransactionID"].head(5).values
+        for tid in critical_ids:
+            st.code(tid)
+
+    with col2:
+        st.markdown("🟡 **Suspicious**")
+        suspicious_ids = results[results["risk_tier"] == "Suspicious"]["TransactionID"].head(5).values
+        for tid in suspicious_ids:
+            st.code(tid)
+
+    with col3:
+        st.markdown("🟢 **Clear**")
+        clear_ids = results[results["risk_tier"] == "Clear"]["TransactionID"].head(5).values
+        for tid in clear_ids:
+            st.code(tid)
+
+search_id = st.text_input("Search by TransactionID", placeholder="e.g. 2987004")
     if search_id:
         match = filtered[filtered["TransactionID"].astype(str) == search_id.strip()]
         if len(match) > 0:
