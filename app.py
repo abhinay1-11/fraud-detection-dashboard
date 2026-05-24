@@ -5,6 +5,8 @@ import pickle
 import shap
 import matplotlib.pyplot as plt
 import plotly.express as px
+import gdown        # ← add this line
+
 
 # ── page config ─────────────────────────────────────────────
 st.set_page_config(
