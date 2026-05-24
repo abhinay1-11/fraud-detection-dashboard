@@ -121,7 +121,7 @@ with st.expander("👉 Don't know a TransactionID? Click here for samples"):
 
     with col1:
         st.markdown("🔴 **Critical Risk**")
-        critical_ids = X_test[results["risk_tier"] == ["Critical Risk"]["TransactionID"].head(5).values
+        critical_ids = X_test[results["risk_tier"] == "Critical Risk"]["TransactionID"].head(5).values
         for tid in critical_ids:
             st.code(tid)
 
