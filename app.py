@@ -16,14 +16,21 @@ st.set_page_config(
 # ── load everything once ─────────────────────────────────────
 @st.cache_resource
 def load_assets():
+    gdown.download(
+        "https://drive.google.com/uc?id=13cmNSGFtrc2-X7xGIPIS-4CR4T0cUeue",
+        "results.csv", quiet=False, fuzzy=True
+    )
+    gdown.download(
+        "https://drive.google.com/uc?id=1O6ICDzxiq1B3dOnyxiHHuLBMepkzgRZz",
+        "X_test.csv", quiet=False, fuzzy=True
+    )
     with open("model.pkl", "rb") as f:
         model = pickle.load(f)
     with open("explainer.pkl", "rb") as f:
         explainer = pickle.load(f)
-    results  = pd.read_csv("results.csv")
-    X_test   = pd.read_csv("X_test.csv")
+    results = pd.read_csv("results.csv")
+    X_test  = pd.read_csv("X_test.csv")
     return model, explainer, results, X_test
-
 model, explainer, results, X_test = load_assets()
 
 # ── sidebar ──────────────────────────────────────────────────
