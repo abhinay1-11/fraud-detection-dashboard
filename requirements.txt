@@ -6,4 +6,4 @@ plotly
 shap
 lightgbm
 scikit-learn
-gdown
+gdown>=4.7.1
