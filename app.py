@@ -128,17 +128,18 @@ elif page == "Transaction Explorer":
 
     search_id = st.text_input("Search by TransactionID", placeholder="e.g. 2987004")
 
-    if search_id:
-        match = filtered[filtered["TransactionID"].astype(str) == search_id.strip()]
-        if len(match) > 0:
-            row = match.iloc[0]
-            st.success("Transaction found!")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Risk Score",   f"{row['fraud_probability']:.4f}")
-            c2.metric("Risk Tier",    row["risk_tier"])
-            c3.metric("Actual Label", "🔴 Fraud" if row["actual"] == 1 else "🟢 Legitimate")
-        else:
-            st.warning("Transaction ID not found in test set.")
+if search_id:
+    # find the row in X_test first to get the index
+    match_idx = X_test[X_test["TransactionID"].astype(str) == search_id.strip()].index
+    if len(match_idx) > 0:
+        row = results.iloc[match_idx[0]]
+        st.success("Transaction found!")
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Risk Score",   f"{row['fraud_probability']:.4f}")
+        c2.metric("Risk Tier",    row["risk_tier"])
+        c3.metric("Actual Label", "🔴 Fraud" if row["actual"] == 1 else "🟢 Legitimate")
+    else:
+        st.warning("Transaction ID not found in test set.")
 
     st.markdown("---")
     st.subheader(f"Showing {len(filtered):,} transactions")
