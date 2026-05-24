@@ -5,17 +5,15 @@ import pickle
 import shap
 import matplotlib.pyplot as plt
 import plotly.express as px
-import gdown        # ← add this line
+import gdown
+import os
 
-
-# ── page config ─────────────────────────────────────────────
 st.set_page_config(
     page_title="Fraud Detection Dashboard",
     page_icon="🔍",
     layout="wide"
 )
 
-# ── load everything once ─────────────────────────────────────
 @st.cache_resource
 def load_assets():
     gdown.download(
@@ -33,12 +31,11 @@ def load_assets():
     results = pd.read_csv("results.csv")
     X_test  = pd.read_csv("X_test.csv")
     return model, explainer, results, X_test
+
 model, explainer, results, X_test = load_assets()
 
-# ── sidebar ──────────────────────────────────────────────────
 st.sidebar.title("🔍 Fraud Detection")
 page = st.sidebar.radio("Navigate", ["Overview", "Transaction Explorer", "SHAP Explainer"])
-
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Filter by Risk Tier**")
 selected_tiers = st.sidebar.multiselect(
@@ -49,25 +46,20 @@ selected_tiers = st.sidebar.multiselect(
 
 filtered = results[results["risk_tier"].isin(selected_tiers)]
 
-# ════════════════════════════════════════════════════════════
 # PAGE 1 — OVERVIEW
-# ════════════════════════════════════════════════════════════
 if page == "Overview":
 
     st.title("📊 Fraud Operations Overview")
     st.markdown("---")
 
-    # top metrics
     col1, col2, col3, col4 = st.columns(4)
-
-    col1.metric("Total Transactions",  f"{len(filtered):,}")
-    col2.metric("Total Fraud Cases",   f"{filtered['actual'].sum():,}")
-    col3.metric("Detection Rate",      f"{filtered['actual'].mean()*100:.2f}%")
-    col4.metric("Avg Fraud Amount",    f"${filtered[filtered['actual']==1]['TransactionAmt'].mean():,.2f}")
+    col1.metric("Total Transactions", f"{len(filtered):,}")
+    col2.metric("Total Fraud Cases",  f"{filtered['actual'].sum():,}")
+    col3.metric("Detection Rate",     f"{filtered['actual'].mean()*100:.2f}%")
+    col4.metric("Avg Fraud Amount",   f"${filtered[filtered['actual']==1]['TransactionAmt'].mean():,.2f}")
 
     st.markdown("---")
 
-    # risk tier donut chart
     col1, col2 = st.columns(2)
 
     with col1:
@@ -79,9 +71,9 @@ if page == "Overview":
                      hole=0.45,
                      color="Risk Tier",
                      color_discrete_map={
-                         "Critical Risk" : "#E05C5C",
-                         "Suspicious"    : "#F5A623",
-                         "Clear"         : "#4A90D9"
+                         "Critical Risk": "#E05C5C",
+                         "Suspicious":    "#F5A623",
+                         "Clear":         "#4A90D9"
                      })
         st.plotly_chart(fig, use_container_width=True)
 
@@ -95,67 +87,64 @@ if page == "Overview":
         fig2.update_layout(yaxis_tickformat=".2%")
         st.plotly_chart(fig2, use_container_width=True)
 
-    # transaction amount distribution
     st.subheader("Transaction Amount Distribution by Risk Tier")
     fig3 = px.histogram(filtered, x="TransactionAmt",
                         color="risk_tier", nbins=80,
                         log_y=True, barmode="overlay",
                         color_discrete_map={
-                            "Critical Risk" : "#E05C5C",
-                            "Suspicious"    : "#F5A623",
-                            "Clear"         : "#4A90D9"
+                            "Critical Risk": "#E05C5C",
+                            "Suspicious":    "#F5A623",
+                            "Clear":         "#4A90D9"
                         })
     st.plotly_chart(fig3, use_container_width=True)
 
 
-# ════════════════════════════════════════════════════════════
 # PAGE 2 — TRANSACTION EXPLORER
-# ════════════════════════════════════════════════════════════
 elif page == "Transaction Explorer":
 
     st.title("🔎 Transaction Explorer")
     st.markdown("---")
 
-with st.expander("👉 Don't know a TransactionID? Click here for samples"):
-    col1, col2, col3 = st.columns(3)
+    with st.expander("👉 Don't know a TransactionID? Click here for samples"):
+        col1, col2, col3 = st.columns(3)
 
-    with col1:
-        st.markdown("🔴 **Critical Risk**")
-        critical_ids = X_test[results["risk_tier"] == "Critical Risk"]["TransactionID"].head(5).values
-        for tid in critical_ids:
-            st.code(tid)
+        with col1:
+            st.markdown("🔴 **Critical Risk**")
+            critical_ids = X_test[results["risk_tier"] == "Critical Risk"]["TransactionID"].head(5).values
+            for tid in critical_ids:
+                st.code(tid)
 
-    with col2:
-        st.markdown("🟡 **Suspicious**")
-        suspicious_ids = X_test[results["risk_tier"] == "Suspicious"]["TransactionID"].head(5).values
-        for tid in suspicious_ids:
-            st.code(tid)
+        with col2:
+            st.markdown("🟡 **Suspicious**")
+            suspicious_ids = X_test[results["risk_tier"] == "Suspicious"]["TransactionID"].head(5).values
+            for tid in suspicious_ids:
+                st.code(tid)
 
-    with col3:
-        st.markdown("🟢 **Clear**")
-        clear_ids = X_test[results["risk_tier"] == "Clear"]["TransactionID"].head(5).values
-        for tid in clear_ids:
-            st.code(tid)
+        with col3:
+            st.markdown("🟢 **Clear**")
+            clear_ids = X_test[results["risk_tier"] == "Clear"]["TransactionID"].head(5).values
+            for tid in clear_ids:
+                st.code(tid)
+
     search_id = st.text_input("Search by TransactionID", placeholder="e.g. 2987004")
 
     if search_id:
         match = filtered[filtered["TransactionID"].astype(str) == search_id.strip()]
         if len(match) > 0:
             row = match.iloc[0]
-            st.success(f"Transaction found!")
+            st.success("Transaction found!")
             c1, c2, c3 = st.columns(3)
             c1.metric("Risk Score",   f"{row['fraud_probability']:.4f}")
             c2.metric("Risk Tier",    row["risk_tier"])
             c3.metric("Actual Label", "🔴 Fraud" if row["actual"] == 1 else "🟢 Legitimate")
         else:
             st.warning("Transaction ID not found in test set.")
-    st.markdown("---")
 
-    # filterable table
+    st.markdown("---")
     st.subheader(f"Showing {len(filtered):,} transactions")
 
-    show_cols = ["TransactionID", "TransactionAmt", "fraud_probability", "risk_tier", "actual"]
-    available = [c for c in show_cols if c in filtered.columns]
+    show_cols  = ["TransactionID", "TransactionAmt", "fraud_probability", "risk_tier", "actual"]
+    available  = [c for c in show_cols if c in filtered.columns]
 
     st.dataframe(
         filtered[available].sort_values("fraud_probability", ascending=False).reset_index(drop=True),
@@ -164,10 +153,32 @@ with st.expander("👉 Don't know a TransactionID? Click here for samples"):
     )
 
 
-# ── PAGE 3 — SHAP EXPLAINER ──────────────────────────────────
+# PAGE 3 — SHAP EXPLAINER
 elif page == "SHAP Explainer":
+
     st.title("🧠 SHAP Transaction Explainer")
     st.markdown("---")
+
+    with st.expander("👉 Don't know a TransactionID? Click here for samples"):
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.markdown("🔴 **Critical Risk**")
+            critical_ids = X_test[results["risk_tier"] == "Critical Risk"]["TransactionID"].head(5).values
+            for tid in critical_ids:
+                st.code(tid)
+
+        with col2:
+            st.markdown("🟡 **Suspicious**")
+            suspicious_ids = X_test[results["risk_tier"] == "Suspicious"]["TransactionID"].head(5).values
+            for tid in suspicious_ids:
+                st.code(tid)
+
+        with col3:
+            st.markdown("🟢 **Clear**")
+            clear_ids = X_test[results["risk_tier"] == "Clear"]["TransactionID"].head(5).values
+            for tid in clear_ids:
+                st.code(tid)
 
     txn_input = st.text_input("Enter TransactionID to explain", placeholder="e.g. 2987004")
 
@@ -178,7 +189,6 @@ elif page == "SHAP Explainer":
             row_features = match.drop(columns=["TransactionID"]).iloc[[0]]
             prob = model.predict_proba(row_features)[:, 1][0]
 
-            # risk tier label
             if prob >= 0.75:
                 tier, color = "🔴 Critical Risk", "red"
             elif prob >= 0.40:
@@ -190,7 +200,6 @@ elif page == "SHAP Explainer":
             st.markdown(f"**Risk Tier:** :{color}[{tier}]")
             st.markdown("---")
 
-            # shap waterfall plot
             st.subheader("SHAP Explanation")
             shap_vals = explainer.shap_values(row_features)
 
@@ -206,7 +215,6 @@ elif page == "SHAP Explainer":
             )
             st.pyplot(fig)
 
-            # plain english explanation
             st.subheader("Plain English Explanation")
             if prob >= 0.75:
                 st.error("This transaction has multiple high-risk signals. "
@@ -217,6 +225,5 @@ elif page == "SHAP Explainer":
             else:
                 st.success("This transaction looks normal. "
                            "No significant fraud signals were detected.")
-
         else:
             st.warning("TransactionID not found.")
