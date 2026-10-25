@@ -1,24 +1,25 @@
-# Fraud Detection Dashboard
+# Fraud Detection with Explainable AI
 
-## Live URL
-https://fraud-detection-dashboard-nyqs5t65xuxawnzpiogqnz.streamlit.app
+An interactive dashboard that flags suspicious transactions and explains each prediction with SHAP.
 
-## About
-Real-Time Fraud Detection System with Explainable AI and Live Dashboard.
-Built as a Week 4 Capstone project for AI & Data Analytics internship.
+**[Live demo](https://fraud-detection-dashboard-nyqs5t65xuxawnzpiogqnz.streamlit.app)** · Python · LightGBM · SHAP · Streamlit
 
-## Pages
-- **Overview** — key metrics, risk tier donut, hour of day fraud rate
-- **Transaction Explorer** — search and filter all transactions by TransactionID
-- **SHAP Explainer** — enter any TransactionID to get a full AI explanation
+Built during my Data Science internship at **XylofiAI** (Apr – May 2026).
 
-## How to run locally
+## What it does
+- Analyzes 590K+ transactions to detect fraud on heavily imbalanced data
+- Trains a LightGBM classifier to flag suspicious transactions
+- Explains predictions with SHAP so every flagged transaction has a reason
+- Presents everything in a 3-page Streamlit dashboard
+
+## Dashboard pages
+- **Overview:** key metrics, risk tier breakdown and fraud rate by hour of day
+- **Transaction Explorer:** search and filter transactions by TransactionID
+- **SHAP Explainer:** enter any TransactionID to see a full explanation of the prediction
+
+## Tech stack
+LightGBM · SHAP · Streamlit · Plotly · Pandas
+
+## Run locally
 pip install -r requirements.txt
 streamlit run app.py
-
-## Tech Stack
-- LightGBM — fraud detection model
-- SHAP — explainable AI
-- Streamlit — dashboard
-- Plotly — interactive charts
-- Google Drive — large file storage
